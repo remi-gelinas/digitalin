@@ -27,7 +27,7 @@ Pebble.addEventListener('showConfiguration', function() {
     return localStorage.getItem(attr);
   }
 
-  var url = 'https://rawgit.com/remi-gelinas/digitalin/master/config/index.html';
+  var url = 'https://rawgit.com/remi-gelinas/digitalin/master/config/index.html?';
   var params = {
     temperature_unit: getSavedInt('TemperatureUnit'),
     dark_mode: getSavedBool('DarkMode'),

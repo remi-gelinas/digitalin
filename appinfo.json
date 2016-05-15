@@ -1,20 +1,17 @@
 {
     "appKeys": {
-        "AppKeyBackgroundColor": 1,
-        "AppKeyConfig": 8,
-        "AppKeyDateColor": 2,
-        "AppKeyDateDisplayed": 0,
-        "AppKeyInfoColor": 4,
-        "AppKeyJsReady": 13,
-        "AppKeyMilitaryTime": 14,
-        "AppKeyRefreshRate": 6,
-        "AppKeyTemperatureUnit": 5,
-        "AppKeyTimeColor": 3,
-        "AppKeyWeatherEnabled": 7,
-        "AppKeyWeatherFailed": 11,
-        "AppKeyWeatherIcon": 10,
-        "AppKeyWeatherRequest": 12,
-        "AppKeyWeatherTemperature": 9
+        "AppKeyBackgroundColor": 0,
+        "AppKeyConfig": 5,
+        "AppKeyInfoColor": 2,
+        "AppKeyJsReady": 10,
+        "AppKeyMilitaryTime": 11,
+        "AppKeyRefreshRate": 4,
+        "AppKeyTemperatureUnit": 3,
+        "AppKeyTimeColor": 1,
+        "AppKeyWeatherFailed": 8,
+        "AppKeyWeatherIcon": 7,
+        "AppKeyWeatherRequest": 9,
+        "AppKeyWeatherTemperature": 6
     },
     "capabilities": [
         "location",

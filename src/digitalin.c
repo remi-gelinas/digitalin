@@ -9,19 +9,16 @@
 // #define i(string, ...) APP_LOG (APP_LOG_LEVEL_INFO, string, ##__VA_ARGS__)
 static GPoint WEATHER_INFO_CENTER = { .x = 30, .y = 63 };
 static GPoint DATE_INFO_CENTER = { .x = 30, .y = 21 };
-static GPoint TIME_INFO_CENTER = {.x = 110, .y = 70 };
+static GPoint TIME_INFO_CENTER = {.x = 105, .y = 70 };
 static GPoint BATTERY_INFO_CENTER = {.x = 30, .y = 105 };
 static GPoint HEALTH_INFO_CENTER = {.x = 30, .y = 147 };
 
 typedef enum {
-  AppKeyDateDisplayed = 0,
-  AppKeyBackgroundColor,
-  AppKeyDateColor,
+  AppKeyBackgroundColor = 0,
   AppKeyTimeColor,
   AppKeyInfoColor,
   AppKeyTemperatureUnit,
   AppKeyRefreshRate,
-  AppKeyWeatherEnabled,
   AppKeyConfig,
   AppKeyWeatherTemperature,
   AppKeyWeatherIcon,
@@ -98,19 +95,17 @@ static void send_weather_request_callback(void * context){
   const bool almost_expired = time(NULL) > expiration;
   const bool can_update_weather = almost_expired && s_js_ready;
   if(can_update_weather){
-    if(config_get_bool(s_config, ConfigKeyWeatherEnabled)){
-      DictionaryIterator *out_iter;
-      AppMessageResult result = app_message_outbox_begin(&out_iter);
-      if(result == APP_MSG_OK) {
-        const int value = 1;
-        dict_write_int(out_iter, AppKeyWeatherRequest, &value, sizeof(int), true);
-        result = app_message_outbox_send();
-        if(result != APP_MSG_OK) {
-          schedule_weather_request(5000);
-        }
-      } else {
+    DictionaryIterator *out_iter;
+    AppMessageResult result = app_message_outbox_begin(&out_iter);
+    if(result == APP_MSG_OK) {
+      const int value = 1;
+      dict_write_int(out_iter, AppKeyWeatherRequest, &value, sizeof(int), true);
+      result = app_message_outbox_send();
+      if(result != APP_MSG_OK) {
         schedule_weather_request(5000);
       }
+    } else {
+      schedule_weather_request(5000);
     }
   }
 }
@@ -132,7 +127,7 @@ static void config_info_color_updated(DictionaryIterator * iter, Tuple * tuple){
   config_set_int(s_config, ConfigKeyInfoColor, tuple->value->int32);
   update_bt();
   update_weather();
-  update_battery();
+  update_battery(battery_state_service_peek());
 }
 
 static void config_background_color_updated(DictionaryIterator * iter, Tuple * tuple){
@@ -146,27 +141,12 @@ static void config_time_color_updated(DictionaryIterator * iter, Tuple * tuple){
   update_time();
 }
 
-static void config_date_color_updated(DictionaryIterator * iter, Tuple * tuple){
-  config_set_int(s_config, ConfigKeyDateColor, tuple->value->int32);
-  update_date();
-}
-
 static void config_refresh_rate_updated(DictionaryIterator * iter, Tuple * tuple){
   config_set_int(s_config, ConfigKeyRefreshRate, tuple->value->int32);
 }
 
 static void config_temperature_unit_updated(DictionaryIterator * iter, Tuple * tuple){
   config_set_int(s_config, ConfigKeyTemperatureUnit, tuple->value->int32);
-  update_weather();
-}
-
-static void config_date_displayed_updated(DictionaryIterator * iter, Tuple * tuple){
-  config_set_bool(s_config, ConfigKeyDateDisplayed, tuple->value->int8);
-  text_block_set_visible(s_date_info, tuple->value->int8);
-}
-
-static void config_weather_enabled_updated(DictionaryIterator * iter, Tuple * tuple){
-  config_set_bool(s_config, ConfigKeyWeatherEnabled, tuple->value->int8);
   update_weather();
 }
 
@@ -196,7 +176,6 @@ static void weather_requested_callback(DictionaryIterator * iter, Tuple * tuple)
 static void messenger_callback(DictionaryIterator * iter){
   if(dict_find(iter, AppKeyConfig)){
     config_save(s_config, PersistKeyConfig);
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "Setting timestamp to 0!");
     s_weather.timestamp = 0;
     schedule_weather_request(0);
   }
@@ -217,17 +196,13 @@ static void update_time(){
   
   snprintf(buffer, sizeof(buffer), "%d:%02d", h, s_current_time->tm_min);
   text_block_set_text(s_time_text, buffer, color);
-  
-  text_block_move(s_time_text, TIME_INFO_CENTER);
 }
 
 static void update_date(){
-  if(config_get_bool(s_config, ConfigKeyDateDisplayed)){
-    const GColor date_color = config_get_color(s_config, ConfigKeyDateColor);
-    char buffer[] = "00";
-    snprintf(buffer, sizeof(buffer), "%d", s_current_time->tm_mday);
-    text_block_set_text(s_date_info, buffer, date_color);
-  }
+  const GColor color = config_get_color(s_config, ConfigKeyInfoColor);
+  char buffer[] = "00";
+  snprintf(buffer, sizeof(buffer), "%d", s_current_time->tm_mday);
+  text_block_set_text(s_date_info, buffer, color);
 }
 
 static void update_bt(){
@@ -248,7 +223,7 @@ static void update_weather(){
   const int expiration =  s_weather.timestamp + timeout;
   const bool weather_valid = time(NULL) < expiration;
   
-  if(weather_valid && config_get_bool(s_config, ConfigKeyWeatherEnabled)){
+  if(weather_valid){
     int temp = s_weather.temperature;
     if(config_get_int(s_config, ConfigKeyTemperatureUnit) == Fahrenheit){
       temp = temp * 9 / 5 + 32;
@@ -308,8 +283,6 @@ static void main_window_load(Window *window) {
 
 
   s_date_info = text_block_create(s_root_layer, DATE_INFO_CENTER, s_font);
-  text_block_set_visible(s_date_info, config_get_bool(s_config, ConfigKeyDateDisplayed));
-
   s_weather_info = text_block_create(s_root_layer, WEATHER_INFO_CENTER, s_font);
   s_battery_info = text_block_create(s_root_layer, BATTERY_INFO_CENTER, s_font);
   s_health_info = text_block_create(s_root_layer, HEALTH_INFO_CENTER, s_font);
@@ -334,13 +307,10 @@ static void main_window_load(Window *window) {
   Message messages[] = {
     { AppKeyJsReady, js_ready_callback },
     { AppKeyBackgroundColor, config_background_color_updated },
-    { AppKeyDateColor, config_date_color_updated },
     { AppKeyInfoColor, config_info_color_updated },
     { AppKeyTimeColor, config_time_color_updated },
-    { AppKeyDateDisplayed, config_date_displayed_updated },
     { AppKeyRefreshRate, config_refresh_rate_updated },
     { AppKeyTemperatureUnit, config_temperature_unit_updated },
-    { AppKeyWeatherEnabled, config_weather_enabled_updated },
     { AppKeyWeatherTemperature, weather_requested_callback },
     { AppKeyMilitaryTime, config_military_time_updated }
   };
