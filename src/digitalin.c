@@ -2,7 +2,7 @@
 #include "config.h"
 #include "text_block.h"
 #include "messenger.h"
-#include "minimalin.h"
+#include "digitalin.h"
 
 // #define d(string, ...) APP_LOG (APP_LOG_LEVEL_DEBUG, string, ##__VA_ARGS__)
 // #define e(string, ...) APP_LOG (APP_LOG_LEVEL_ERROR, string, ##__VA_ARGS__)
@@ -15,7 +15,6 @@ static GPoint HEALTH_INFO_CENTER = {.x = 30, .y = 147 };
 
 typedef enum {
   AppKeyDateDisplayed = 0,
-  AppKeyBluetoothIcon,
   AppKeyBackgroundColor,
   AppKeyDateColor,
   AppKeyTimeColor,
@@ -29,7 +28,6 @@ typedef enum {
   AppKeyWeatherFailed,
   AppKeyWeatherRequest,
   AppKeyJsReady,
-  AppKeyVibrateOnTheHour,
   AppKeyMilitaryTime
 } AppKey;
 
@@ -118,7 +116,6 @@ static void send_weather_request_callback(void * context){
 }
 
 static void schedule_weather_request(int timeout){
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "Scheduling weather request");
   int expiration = time(NULL) + timeout;
   if(s_weather_request_timer){
     if(expiration < s_weather_request_timeout){
@@ -163,11 +160,6 @@ static void config_temperature_unit_updated(DictionaryIterator * iter, Tuple * t
   update_weather();
 }
 
-static void config_bluetooth_icon_updated(DictionaryIterator * iter, Tuple * tuple){
-  config_set_int(s_config, ConfigKeyBluetoothIcon, tuple->value->int32);
-  update_bt();
-}
-
 static void config_date_displayed_updated(DictionaryIterator * iter, Tuple * tuple){
   config_set_bool(s_config, ConfigKeyDateDisplayed, tuple->value->int8);
   text_block_set_visible(s_date_info, tuple->value->int8);
@@ -176,10 +168,6 @@ static void config_date_displayed_updated(DictionaryIterator * iter, Tuple * tup
 static void config_weather_enabled_updated(DictionaryIterator * iter, Tuple * tuple){
   config_set_bool(s_config, ConfigKeyWeatherEnabled, tuple->value->int8);
   update_weather();
-}
-
-static void config_hourly_vibrate_updated(DictionaryIterator * iter, Tuple * tuple){
-  config_set_bool(s_config, ConfigKeyVibrateOnTheHour, tuple->value->int8);
 }
 
 static void config_military_time_updated(DictionaryIterator * iter, Tuple * tuple){
@@ -244,15 +232,12 @@ static void update_date(){
 
 static void update_bt(){
   char bt_buffer[10] = {0};
-  const BluetoothIcon new_icon = config_get_int(s_config, ConfigKeyBluetoothIcon);
   
   if(!s_bt_connected){
-    if(new_icon == Bluetooth){
-      strncat(bt_buffer, "z", 2);
-    }else if(new_icon == Heart){
-      strncat(bt_buffer, "Z", 2);
-    }
+    strncat(bt_buffer, "z", 2);
   }
+  
+  // Fill bluetooth layer
 }
 
 static void update_weather(){
@@ -301,21 +286,14 @@ static void bt_handler(bool connected){
 }
 
 static void tick_handler(struct tm *tick_time, TimeUnits units_changed){
-  if(HOUR_UNIT & units_changed){
-    HealthActivity activity = health_service_peek_current_activities();
-    if(activity == HealthActivityNone){
-      bool vibrate_on_the_hour = config_get_bool(s_config, ConfigKeyVibrateOnTheHour);
-      if(vibrate_on_the_hour){
-        vibes_short_pulse();
-      }
-    }
-  }
   schedule_weather_request(10000);
   update_current_time();
   update_time();
+  
   if(DAY_UNIT & units_changed){
     update_date();
   }
+  
   layer_mark_dirty(s_tick_layer);
   update_bt();
   update_weather();
@@ -360,15 +338,13 @@ static void main_window_load(Window *window) {
     { AppKeyInfoColor, config_info_color_updated },
     { AppKeyTimeColor, config_time_color_updated },
     { AppKeyDateDisplayed, config_date_displayed_updated },
-    { AppKeyBluetoothIcon, config_bluetooth_icon_updated },
     { AppKeyRefreshRate, config_refresh_rate_updated },
     { AppKeyTemperatureUnit, config_temperature_unit_updated },
     { AppKeyWeatherEnabled, config_weather_enabled_updated },
     { AppKeyWeatherTemperature, weather_requested_callback },
-    { AppKeyVibrateOnTheHour, config_hourly_vibrate_updated },
     { AppKeyMilitaryTime, config_military_time_updated }
   };
-  s_messenger = messenger_create(13, messenger_callback, messages);
+  s_messenger = messenger_create(12, messenger_callback, messages);
 }
 
 static void main_window_unload(Window *window) {

@@ -27,28 +27,19 @@ Pebble.addEventListener('showConfiguration', function() {
     return localStorage.getItem(attr);
   }
 
-  var url = 'https://cdn.rawgit.com/groyoh/minimalin/a3ceb112f397d3853cac544523a3073c26231711/config/index.html?';
+  var url = 'https://rawgit.com/remi-gelinas/digitalin/master/config/index.html';
   var params = {
-    minute_hand_color: getSavedColor('MinuteHand'),
-    hour_hand_color: getSavedColor('HourHand'),
-    date_displayed: getSavedBool('DateDisplayed'),
-    bluetooth_icon: getSavedInt('BluetoothIcon'),
-    weather_enabled: getSavedInt('WeatherEnabled'),
     temperature_unit: getSavedInt('TemperatureUnit'),
-    rainbow_mode: getSavedBool('RainbowMode'),
     dark_mode: getSavedBool('DarkMode'),
     background_color: getSavedColor('Background'),
-    date_color: getSavedColor('Date'),
     time_color: getSavedColor('Time'),
     info_color: getSavedColor('Info'),
     refresh_rate: getSavedInt('RefreshRate'),
     location: getSaved('Location'),
     platform: Pebble.getActiveWatchInfo().platform,
-    vibrate_on_the_hour: getSavedBool('VibrateOnTheHour'),
     military_time: getSavedBool('MilitaryTime')
   };
   url += toQueryString(params);
-  // console.log('Showing configuration page: ' + url);
   Pebble.openURL(url);
 });
 
@@ -68,21 +59,13 @@ Pebble.addEventListener('webviewclosed', function(e) {
       dict['AppKey' + attr] = int;
     };
     var configData = JSON.parse(decodeURIComponent(e.response));
-    // console.log('Configuration page returned: ' + JSON.stringify(configData));
+
     var dict = {};
-    saveColor(dict, 'MinuteHand', configData.minute_hand_color);
-    saveColor(dict, 'HourHand', configData.hour_hand_color);
     saveColor(dict, 'Background', configData.background_color);
-    saveColor(dict, 'Date', configData.date_color);
     saveColor(dict, 'Time', configData.time_color);
     saveColor(dict, 'Info', configData.info_color);
-    saveBool(dict, 'DateDisplayed', configData.date_displayed);
-    saveInt(dict, 'WeatherEnabled', configData.weather_enabled);
-    saveInt(dict, 'BluetoothIcon', configData.bluetooth_icon);
     saveInt(dict, 'TemperatureUnit', configData.temperature_unit);
     saveInt(dict, 'RefreshRate', configData.refresh_rate);
-    saveBool(dict, 'RainbowMode', configData.rainbow_mode);
-    saveBool(dict, 'VibrateOnTheHour', configData.vibrate_on_the_hour);
     saveBool(dict, 'MilitaryTime', configData.military_time);
     localStorage.setItem('DarkMode_bool', configData.dark_mode);
     dict['AppKeyConfig'] = 1;
