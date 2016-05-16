@@ -128,6 +128,8 @@ static void config_info_color_updated(DictionaryIterator * iter, Tuple * tuple){
   update_bt();
   update_weather();
   update_battery(battery_state_service_peek());
+  update_health(NULL, NULL);
+  update_date();
 }
 
 static void config_background_color_updated(DictionaryIterator * iter, Tuple * tuple){
@@ -303,6 +305,7 @@ static void main_window_load(Window *window) {
   update_time();
   update_date();
   update_battery(battery_state_service_peek());
+  update_health(NULL, NULL);
   
   Message messages[] = {
     { AppKeyJsReady, js_ready_callback },
