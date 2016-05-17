@@ -12,6 +12,7 @@ static GPoint DATE_INFO_CENTER = { .x = 30, .y = 21 };
 static GPoint TIME_INFO_CENTER = {.x = 105, .y = 70 };
 static GPoint BATTERY_INFO_CENTER = {.x = 30, .y = 105 };
 static GPoint HEALTH_INFO_CENTER = {.x = 30, .y = 147 };
+static GPoint BT_INFO_CENTER = {.x = 105, .y = 110 };
 
 typedef enum {
   AppKeyBackgroundColor = 0,
@@ -55,6 +56,7 @@ static TextBlock * s_date_info;
 static TextBlock * s_battery_info;
 static TextBlock * s_health_info;
 static TextBlock * s_time_text;
+static TextBlock * s_bt_info;
 
 static Layer * s_tick_layer;
 
@@ -76,12 +78,13 @@ static GFont s_font_big;
 static tm * s_current_time;
 
 static void schedule_weather_request(int timeout);
+
 static void update_time();
 static void update_date();
-
 static void update_bt();
 static void update_weather();
 static void update_battery();
+static void update_health(HealthMetric m);
 
 static void update_current_time() {
   const time_t temp = time(NULL);
@@ -128,7 +131,7 @@ static void config_info_color_updated(DictionaryIterator * iter, Tuple * tuple){
   update_bt();
   update_weather();
   update_battery(battery_state_service_peek());
-  update_health(NULL, NULL);
+  update_health(HealthMetricStepCount);
   update_date();
 }
 
@@ -200,21 +203,22 @@ static void update_time(){
   text_block_set_text(s_time_text, buffer, color);
 }
 
-static void update_date(){
+static void update_date() {
   const GColor color = config_get_color(s_config, ConfigKeyInfoColor);
   char buffer[] = "00";
   snprintf(buffer, sizeof(buffer), "%d", s_current_time->tm_mday);
   text_block_set_text(s_date_info, buffer, color);
 }
 
-static void update_bt(){
-  char bt_buffer[10] = {0};
+static void update_bt() {
+  const GColor color = config_get_color(s_config, ConfigKeyInfoColor);
+  char buffer[10] = {0};
   
   if(!s_bt_connected){
-    strncat(bt_buffer, "z", 2);
+    strncat(buffer, "z", 2);
   }
   
-  // Fill bluetooth layer
+  text_block_set_text(s_bt_info, buffer, color);
 }
 
 static void update_weather(){
@@ -242,18 +246,27 @@ static void update_battery(BatteryChargeState state) {
   const GColor color = config_get_color(s_config, ConfigKeyInfoColor);
   char buffer[10];
   
-  snprintf(buffer, sizeof(buffer), "%d%%", state.charge_percent);
+  if (state.is_charging) {
+    snprintf(buffer, sizeof(buffer), "!");
+  } else {
+    snprintf(buffer, sizeof(buffer), "%d%%", state.charge_percent);
+  }
+  
   text_block_set_text(s_battery_info, buffer, color);
 }
 
-static void update_health(HealthEventType e, void *context) {
-  if (s_health_enabled) {
+static void update_health(HealthMetric m) {
+   if (s_health_enabled) {
     const GColor color = config_get_color(s_config, ConfigKeyInfoColor);
     char buffer[6];
-    snprintf(buffer, sizeof(buffer), "%d", (int)health_service_sum_today(HealthMetricStepCount));
+    snprintf(buffer, sizeof(buffer), "%d", (int)health_service_sum_today(m));
     
     text_block_set_text(s_health_info, buffer, color);
-  }
+  } 
+}
+
+static void health_handler(HealthEventType e, void *context) {
+  update_health(HealthMetricStepCount);
 }
 
 static void bt_handler(bool connected){
@@ -288,6 +301,7 @@ static void main_window_load(Window *window) {
   s_weather_info = text_block_create(s_root_layer, WEATHER_INFO_CENTER, s_font);
   s_battery_info = text_block_create(s_root_layer, BATTERY_INFO_CENTER, s_font);
   s_health_info = text_block_create(s_root_layer, HEALTH_INFO_CENTER, s_font);
+  s_bt_info = text_block_create(s_root_layer, BT_INFO_CENTER, s_font);
   bluetooth_connection_service_subscribe(bt_handler);
   bt_handler(connection_service_peek_pebble_app_connection());
   
@@ -298,14 +312,14 @@ static void main_window_load(Window *window) {
 
   tick_timer_service_subscribe(MINUTE_UNIT, tick_handler);
   battery_state_service_subscribe(update_battery);
-  s_health_enabled = health_service_events_subscribe(update_health, NULL);
+  s_health_enabled = health_service_events_subscribe(health_handler, NULL);
   
   
   update_current_time();
   update_time();
   update_date();
   update_battery(battery_state_service_peek());
-  update_health(NULL, NULL);
+  update_health(HealthMetricStepCount);
   
   Message messages[] = {
     { AppKeyJsReady, js_ready_callback },
@@ -334,7 +348,7 @@ static void init() {
   s_weather_request_timeout = 0;
   s_js_ready = false;
   s_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_NUPE_23));
-  s_font_big = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_NUPE_35));
+  s_font_big = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_NUPE_38));
   s_config = config_load(PersistKeyConfig, CONF_SIZE, CONF_DEFAULTS);
   if(persist_exists(PersistKeyWeather)){
     persist_read_data(PersistKeyWeather, &s_weather, sizeof(Weather));
