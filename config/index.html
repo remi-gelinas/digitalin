@@ -74,8 +74,7 @@
        temperature_unit: 0,
        refresh_rate: fromRefreshRate[20],
        location: '',
-       dark_mode: true,
-       military_time: false
+       dark_mode: true
      };
 
      var data = {
@@ -87,8 +86,7 @@
        time_color: color('time_color', defaults.time_color),
        info_color: color('info_color', defaults.info_color),
        location: query('location',defaults.location),
-       platform: queryIn('platform', ['basalt', 'chalk', 'aplite'], 'basalt'),
-       military_time: bool('military_time', defaults.military_time)
+       platform: queryIn('platform', ['basalt', 'chalk', 'aplite'], 'basalt')
      };
 
      Ractive.load('template/ConfigView.html').then(function(ConfigView) {
@@ -116,8 +114,7 @@
                  refresh_rate: toRefreshRate[this.get('refresh_rate')],
                  temperature_unit: this.get('temperature_unit'),
                  dark_mode: dark_mode,
-                 location: this.get('location') || '',
-                 military_time: this.get('military_time')
+                 location: this.get('location') || ''
                };
              }else{
                var response_data = {
@@ -126,8 +123,7 @@
                  info_color: this.get('info_color'),
                  refresh_rate: toRefreshRate[this.get('refresh_rate')],
                  temperature_unit: this.get('temperature_unit'),
-                 location: this.get('location') || '',
-                 military_time: this.get('military_time')
+                 location: this.get('location') || ''
                };
              }
              console.log(response_data);

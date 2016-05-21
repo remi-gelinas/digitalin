@@ -5,12 +5,10 @@
 
 <div id="content">
   {{#if platform == 'aplite'}}
-    <Tabs source="{{ dark_mode_source }}" active_tab="{{ dark_mode }}" header="Color theme"/>
   {{/if}}
   {{#if platform != 'aplite'}}
   <ItemColor color="{{ time_color }}" label="Time color"/>
   <ItemColor color="{{ background_color }}" label="Background color"/>
-  <Toggle label="Use 24h format" value="{{ military_time }}"/>
   {{/if}}
   {{#if platform == 'aplite'}}
   {{else}}
@@ -147,9 +145,6 @@
 <script>
  component.exports = {
    computed: {
-     dark_mode_source: function(){
-       return [{ label: "Dark"}, { label: "Light"}]
-     }, 
      temperature_unit_source: function(){
        return [
          { label: "Celsius" },
@@ -161,12 +156,6 @@
          { label: "5 min" },
          { label: "20 min" },
          { label: "40 min" }
-       ];
-     },
-     time_format_source: function(){
-       return [
-         { label: "12 hour" },
-         { label: "24 hour" }
        ];
      }, 
      _info_color: function(){
