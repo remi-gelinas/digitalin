@@ -4,14 +4,9 @@
 <link rel="ractive" href="./Toggle.html">
 
 <div id="content">
-  {{#if platform == 'aplite'}}
-  {{/if}}
   {{#if platform != 'aplite'}}
   <ItemColor color="{{ time_color }}" label="Time color"/>
   <ItemColor color="{{ background_color }}" label="Background color"/>
-  {{/if}}
-  {{#if platform == 'aplite'}}
-  {{else}}
   {{/if}}
   <div class="section">
     <div>Additional data</div>

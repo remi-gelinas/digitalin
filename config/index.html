@@ -4,6 +4,7 @@
     <title>Digitalin Configuration</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, user-scalable=no"/>
     <link rel='stylesheet' type='text/css' href='css/slate.min.css'>
+    <link rel='stylesheet' type='text/css' href='css/digitalin.css'>
     <script type='text/javascript' src='js/ractive.min.js'></script>
     <script type='text/javascript' src='//cdn.jsdelivr.net/ractive.load/latest/ractive-load.min.js'></script>
   </head>
@@ -74,14 +75,12 @@
        temperature_unit: 0,
        refresh_rate: fromRefreshRate[20],
        location: '',
-       dark_mode: true
      };
 
      var data = {
        defaults: defaults,
        temperature_unit: queryIn('temperature_unit', [0,1], defaults.temperature_unit),
        refresh_rate: fromRefreshRate[queryIn('refresh_rate', [5,20,40], defaults.refresh_rate)],
-       dark_mode: bool('dark_mode', defaults.dark_mode) ? 0 : 1,
        background_color: color('background_color', defaults.background_color),
        time_color: color('time_color', defaults.time_color),
        info_color: color('info_color', defaults.info_color),
@@ -95,15 +94,13 @@
          data: data,
          oninit: function(){
            this.on('save', function() {
-             var dark_mode = this.get('dark_mode') == 0;
              var aplite = this.get('platform') == 'aplite';
              var dark = '#000000';
-             var light = '#FFFFFF';
              var foreground = function(){
-               return dark_mode ? light : dark;
+               return dark;
              }
              var background = function(){
-               return dark_mode ? dark : light;
+               return dark;
              }
              var response_data;
              if(aplite){
@@ -113,7 +110,6 @@
                  info_color: foreground(),
                  refresh_rate: toRefreshRate[this.get('refresh_rate')],
                  temperature_unit: this.get('temperature_unit'),
-                 dark_mode: dark_mode,
                  location: this.get('location') || ''
                };
              }else{
