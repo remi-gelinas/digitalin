@@ -4,7 +4,6 @@
         "AppKeyConfig": 5,
         "AppKeyInfoColor": 2,
         "AppKeyJsReady": 10,
-        "AppKeyMilitaryTime": 11,
         "AppKeyRefreshRate": 4,
         "AppKeyTemperatureUnit": 3,
         "AppKeyTimeColor": 1,
@@ -25,11 +24,10 @@
     "resources": {
         "media": [
             {
-                "characterRegex": "[0-9:\u00b0a-iz%!A-IZ\u2212]",
-                "file": "fonts/nupe.ttf",
-                "name": "FONT_NUPE_23",
-                "targetPlatforms": null,
-                "type": "font"
+                "file": "images/img_menu.png",
+                "menuIcon": true,
+                "name": "MENU_IMAGE",
+                "type": "png"
             },
             {
                 "characterRegex": "[0-9:\u00b0a-iz%!A-IZ\u2212]",
@@ -39,10 +37,11 @@
                 "type": "font"
             },
             {
-                "file": "images/img_menu.png",
-                "menuIcon": true,
-                "name": "MENU_IMAGE",
-                "type": "png"
+                "characterRegex": "[0-9:\u00b0a-iz%!A-IZ\u2212]",
+                "file": "fonts/nupe.ttf",
+                "name": "FONT_NUPE_23",
+                "targetPlatforms": null,
+                "type": "font"
             }
         ]
     },

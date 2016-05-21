@@ -30,14 +30,12 @@ Pebble.addEventListener('showConfiguration', function() {
   var url = 'https://rawgit.com/remi-gelinas/digitalin/master/config/index.html?';
   var params = {
     temperature_unit: getSavedInt('TemperatureUnit'),
-    dark_mode: getSavedBool('DarkMode'),
     background_color: getSavedColor('Background'),
     time_color: getSavedColor('Time'),
     info_color: getSavedColor('Info'),
     refresh_rate: getSavedInt('RefreshRate'),
     location: getSaved('Location'),
-    platform: Pebble.getActiveWatchInfo().platform,
-    military_time: getSavedBool('MilitaryTime')
+    platform: Pebble.getActiveWatchInfo().platform
   };
   url += toQueryString(params);
   Pebble.openURL(url);
@@ -66,8 +64,6 @@ Pebble.addEventListener('webviewclosed', function(e) {
     saveColor(dict, 'Info', configData.info_color);
     saveInt(dict, 'TemperatureUnit', configData.temperature_unit);
     saveInt(dict, 'RefreshRate', configData.refresh_rate);
-    saveBool(dict, 'MilitaryTime', configData.military_time);
-    localStorage.setItem('DarkMode_bool', configData.dark_mode);
     dict['AppKeyConfig'] = 1;
     localStorage.setItem("Location", configData.location);
     Pebble.sendAppMessage(dict, function() {

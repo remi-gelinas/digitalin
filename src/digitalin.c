@@ -26,7 +26,6 @@ typedef enum {
   AppKeyWeatherFailed,
   AppKeyWeatherRequest,
   AppKeyJsReady,
-  AppKeyMilitaryTime
 } AppKey;
 
 typedef enum {
@@ -155,12 +154,6 @@ static void config_temperature_unit_updated(DictionaryIterator * iter, Tuple * t
   update_weather();
 }
 
-static void config_military_time_updated(DictionaryIterator * iter, Tuple * tuple){
-  config_set_bool(s_config, ConfigKeyMilitaryTime, tuple->value->int8);
-  layer_mark_dirty(s_tick_layer);
-  update_time();
-}
-
 static void js_ready_callback(DictionaryIterator * iter, Tuple * tuple){
   s_js_ready = true;
   schedule_weather_request(0);
@@ -191,7 +184,7 @@ static void update_time(){
   GColor color = config_get_color(s_config, ConfigKeyTimeColor);
   char buffer[] = "00:00";
   int h = s_current_time->tm_hour;
-  if(!config_get_bool(s_config, ConfigKeyMilitaryTime)){
+  if(!clock_is_24h_style()){
     if (h > 12) {
       h -= 12;
     }else if(h == 0){
@@ -329,9 +322,8 @@ static void main_window_load(Window *window) {
     { AppKeyRefreshRate, config_refresh_rate_updated },
     { AppKeyTemperatureUnit, config_temperature_unit_updated },
     { AppKeyWeatherTemperature, weather_requested_callback },
-    { AppKeyMilitaryTime, config_military_time_updated }
   };
-  s_messenger = messenger_create(12, messenger_callback, messages);
+  s_messenger = messenger_create(11, messenger_callback, messages);
 }
 
 static void main_window_unload(Window *window) {
