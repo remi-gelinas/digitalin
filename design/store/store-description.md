@@ -8,4 +8,7 @@ Modifications to the original face include:
 * Small bluetooth disconnection indicator underneath time
 * Digital time big enough to be seen easily, but not in the way
 
+Please report any issues through the Github repository issue tracker
 
+Current known issues:
+* 24 hour time is mildly broked :D
