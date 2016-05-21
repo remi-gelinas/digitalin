@@ -25,24 +25,24 @@
     "resources": {
         "media": [
             {
-                "file": "images/img_menu.png",
-                "menuIcon": true,
-                "name": "MENU_IMAGE",
-                "type": "png"
-            },
-            {
-                "characterRegex": "[0-9:\u00b0a-iz%A-IZ\u2212]",
-                "file": "fonts/nupe-new.ttf",
+                "characterRegex": "[0-9:\u00b0a-iz%!A-IZ\u2212]",
+                "file": "fonts/nupe.ttf",
                 "name": "FONT_NUPE_23",
                 "targetPlatforms": null,
                 "type": "font"
             },
             {
-                "characterRegex": "[0-9:\u00b0a-iz%A-IZ\u2212]",
-                "file": "fonts/nupe-new.ttf",
-                "name": "FONT_NUPE_35",
+                "characterRegex": "[0-9:\u00b0a-iz%!A-IZ\u2212]",
+                "file": "fonts/nupe.ttf",
+                "name": "FONT_NUPE_38",
                 "targetPlatforms": null,
                 "type": "font"
+            },
+            {
+                "file": "images/img_menu.png",
+                "menuIcon": true,
+                "name": "MENU_IMAGE",
+                "type": "png"
             }
         ]
     },
