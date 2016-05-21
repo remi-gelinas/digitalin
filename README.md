@@ -1,12 +1,11 @@
 # digitalin
 
-![banner](design/store/marketing-banner.png)
-
 Digitalin is a custom, heavily modified version of the beautiful [Minimalin](https://github.com/groyoh/minimalin) watchface.br><br>
 Digitalin uses the original Nupe font, modified with added glyphs created from scratch with the original design in mind.
 
 Modifications to the original face include:
 * A completely digital display, no analog
+* Customizable colors for information, time, and background
 * Battery percentage and charging indicator
 * Daily step count
 * Small bluetooth disconnection indicator underneath time

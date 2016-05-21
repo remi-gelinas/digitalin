@@ -1,8 +1,11 @@
-Minimalin is a fully customizable watchface that blends analog and digital for a modern and elegant look.
-Minimalin is an open source project. If you love it as much as we do, feel free to tap the HEART and email comments/feedback! :)
+Digitalin is a heavily modified custom version of the stunningly elegant watchface [Minimalin] (https://apps.getpebble.com/en_US/application/56f93a5361a01637e5000036)
+Digitalin is and always will be open source software :D
 
-* Fully configurable colors
-* Date display
-* Weather conditions and temperature
-* Bluetooth disconnected icon (pick your favorite)
-* Rainbow hand, and more great and fun features to come!
+Modifications to the original face include:
+* A completely digital display, no analog
+* Battery percentage and charging indicator
+* Daily step count
+* Small bluetooth disconnection indicator underneath time
+* Digital time big enough to be seen easily, but not in the way
+
+
